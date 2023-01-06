@@ -21,7 +21,7 @@ export function sendMail({ to, subject, html }) {
 }
 
 export function sendActivationMail(to, token) {
-  const link = `${process.env.CLIENT_URL}/activate/${token}`
+  const link = `${process.env.CLIENT_URL}/activation/${token}`
 
   return sendMail({
     to,
