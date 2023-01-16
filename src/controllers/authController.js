@@ -1,6 +1,27 @@
 import { v4 as uuidv4 } from 'uuid';
 import { User } from "../models/User.js";
 import { emailService } from '../services/emailService.js';
+import { jwtService } from '../services/jwtService.js';
+import { userService } from '../services/userService.js';
+
+async function login(req, res, next) {
+  const { email, password } = req.body;
+  // find a user in db
+  const user = await userService.findByEmail(email);
+  // compare password vs db
+  if (password !== user.password) {
+    res.sendStatus(401);
+    return;
+  }
+  // generate access token - jwt
+  const normalizedUser = userService.normalize(user);
+  const accessToken = jwtService.generateAccessToken(normalizedUser);
+  // send the object and a token to client
+  res.send({
+    user: normalizedUser,
+    accessToken,
+  })
+};
 
 async function register(req, res, next) {
   const { email, password } = req.body;
@@ -34,4 +55,5 @@ async function activate(req, res, next) {
 export const authContoller = {
   register,
   activate,
+  login,
 }
