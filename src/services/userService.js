@@ -20,7 +20,7 @@ function normalize({ id, email }) {
 }
 
 async function register({ email, password}) {
-  const existingUser = findByEmail(email);
+  const existingUser = await findByEmail(email);
 
   if (existingUser) {
     throw ApiError.BadRequest('Email is already registered', {
