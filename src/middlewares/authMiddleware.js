@@ -1,26 +1,23 @@
+import { ApiError } from "../exceptions/ApiError.js";
 import { jwtService } from "../services/jwtService.js";
 
 export function authMiddleware(req, res, next) {
-  // request.headers['Authorization'] = `Bearer ${accessToken}`
   const authHeader = req.headers['authorization'];
 
   if (!authHeader) {
-    res.sendStatus(401);
-    return;
+    throw ApiError.Unahtorized();
   }
 
   const [, accessToken] = authHeader.split(' ');
 
   if (!accessToken) {
-    res.sendStatus(401);
-    return;
+    throw ApiError.Unahtorized();
   }
 
   const userData = jwtService.verifyAccessToken(accessToken);
 
   if (!userData) {
-    res.sendStatus(401);
-    return;
+    throw ApiError.Unahtorized();
   }
 
   next();
