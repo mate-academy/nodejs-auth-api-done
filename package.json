@@ -5,7 +5,7 @@
   "description": "",
   "main": "src/index.js",
   "scripts": {
-    "start": "nodemon src/index.js"
+    "start": "nodemon --unhandled-rejections=strict src/index.js"
   },
   "keywords": [],
   "author": "",

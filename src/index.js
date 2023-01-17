@@ -3,6 +3,7 @@ import cors from 'cors';
 import express from 'express';
 import { authRouter } from './routers/authRouter.js';
 import { userRouter } from './routers/userRouter.js';
+import { errorMiddleware } from './middlewares/errorMiddleware.js';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -14,6 +15,7 @@ app.use(cors({
 app.use(express.json());
 app.use(authRouter);
 app.use('/users', userRouter);
+app.use(errorMiddleware);
 
 app.get('/', (req, res) => {
   res.send('hello');
