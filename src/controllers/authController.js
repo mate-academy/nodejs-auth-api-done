@@ -2,6 +2,7 @@ import bcrypt from 'bcrypt';
 import { ApiError } from "../exceptions/ApiError.js";
 import { User } from "../models/User.js";
 import { jwtService } from '../services/jwtService.js';
+import { tokenService } from '../services/tokenService.js';
 import { userService } from '../services/userService.js';
 
 function validateEmail(value) {
@@ -42,7 +43,7 @@ async function login(req, res, next) {
     throw ApiError.BadRequest('Password is wrong');
   }
 
-  sendAuth(res, user);
+  await sendAuth(res, user);
 };
 
 async function register(req, res, next) {
@@ -77,7 +78,7 @@ async function activate(req, res, next) {
   user.activationToken = null;
   await user.save();
 
-  res.send(user);
+  await sendAuth(res, user);
 };
 
 async function refresh(req, res, next) {
@@ -89,19 +90,29 @@ async function refresh(req, res, next) {
     throw ApiError.Unahtorized();
   }
 
+  const token = await tokenService.getByToken(refreshToken);
+
+  if (!token) {
+    throw ApiError.Unahtorized();
+  }
+
   const user = await userService.findByEmail(userData.email);
 
-  sendAuth(res, user);
+  await sendAuth(res, user);
 };
 
-function sendAuth(res, user) {
+async function sendAuth(res, user) {
   const normalizedUser = userService.normalize(user);
   const accessToken = jwtService.generateAccessToken(normalizedUser);
   const refreshToken = jwtService.generateRefreshToken(normalizedUser);
 
+  await tokenService.save(user.id, refreshToken);
+
   res.cookie('refreshToken', refreshToken, {
     maxAge: 30 * 24 * 60 * 60 * 1000,
     httpOnly: true,
+    // sameSite: 'none',
+    // secure: true,
   });
 
   res.send({
