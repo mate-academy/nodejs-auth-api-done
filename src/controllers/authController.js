@@ -101,6 +101,20 @@ async function refresh(req, res, next) {
   await sendAuth(res, user);
 };
 
+async function logout(req, res, next) {
+  const { refreshToken } = req.cookies;
+
+  const userData = jwtService.verifyRefreshToken(refreshToken);
+
+  res.clearCookie('refreshToken');
+
+  if (userData) {
+    await tokenService.remove(userData.id);
+  }
+
+  res.sendStatus(204);
+};
+
 async function sendAuth(res, user) {
   const normalizedUser = userService.normalize(user);
   const accessToken = jwtService.generateAccessToken(normalizedUser);
@@ -126,4 +140,5 @@ export const authContoller = {
   activate,
   login,
   refresh,
+  logout,
 }
