@@ -1,3 +1,4 @@
+import bcrypt from 'bcrypt';
 import { ApiError } from "../exceptions/ApiError.js";
 import { User } from "../models/User.js";
 import { jwtService } from '../services/jwtService.js';
@@ -27,17 +28,23 @@ const validatePassword = (value) => {
 
 async function login(req, res, next) {
   const { email, password } = req.body;
-  // find a user in db
+
   const user = await userService.findByEmail(email);
-  // compare password vs db
-  if (password !== user.password) {
-    res.sendStatus(401);
-    return;
+
+  if (!user) {
+    throw ApiError.BadRequest('User with such email is not found');
   }
-  // generate access token - jwt
+
+  const isPasswordValid = await bcrypt
+    .compare(password, user.password);
+
+  if (!isPasswordValid) {
+    throw ApiError.BadRequest('Password is wrong');
+  }
+
   const normalizedUser = userService.normalize(user);
   const accessToken = jwtService.generateAccessToken(normalizedUser);
-  // send the object and a token to client
+
   res.send({
     user: normalizedUser,
     accessToken,

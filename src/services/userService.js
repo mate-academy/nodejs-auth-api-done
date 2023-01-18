@@ -1,3 +1,4 @@
+import bcrypt from 'bcrypt';
 import { ApiError } from "../exceptions/ApiError.js";
 import { User } from "../models/User.js";
 import { v4 as uuidv4 } from 'uuid';
@@ -28,8 +29,15 @@ async function register({ email, password}) {
     })
   }
 
+  const hashedPassword = await bcrypt
+    .hash(password, 10);
+
   const activationToken = uuidv4();
-  await User.create({ email, password, activationToken });
+  await User.create({
+    email,
+    password: hashedPassword,
+    activationToken,
+  });
 
   await emailService.sendActivationMail(email, activationToken);
 }
