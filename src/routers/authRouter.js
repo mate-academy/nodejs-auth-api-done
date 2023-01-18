@@ -7,3 +7,4 @@ export const authRouter = new express.Router();
 authRouter.post('/register', catchError(authContoller.register))
 authRouter.get('/activation/:activationToken', catchError(authContoller.activate))
 authRouter.post('/login', catchError(authContoller.login))
+authRouter.get('/refresh', catchError(authContoller.refresh))

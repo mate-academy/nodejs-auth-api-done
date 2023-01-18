@@ -42,13 +42,7 @@ async function login(req, res, next) {
     throw ApiError.BadRequest('Password is wrong');
   }
 
-  const normalizedUser = userService.normalize(user);
-  const accessToken = jwtService.generateAccessToken(normalizedUser);
-
-  res.send({
-    user: normalizedUser,
-    accessToken,
-  })
+  sendAuth(res, user);
 };
 
 async function register(req, res, next) {
@@ -86,8 +80,39 @@ async function activate(req, res, next) {
   res.send(user);
 };
 
+async function refresh(req, res, next) {
+  const { refreshToken } = req.cookies;
+
+  const userData = jwtService.verifyRefreshToken(refreshToken);
+
+  if (!userData) {
+    throw ApiError.Unahtorized();
+  }
+
+  const user = await userService.findByEmail(userData.email);
+
+  sendAuth(res, user);
+};
+
+function sendAuth(res, user) {
+  const normalizedUser = userService.normalize(user);
+  const accessToken = jwtService.generateAccessToken(normalizedUser);
+  const refreshToken = jwtService.generateRefreshToken(normalizedUser);
+
+  res.cookie('refreshToken', refreshToken, {
+    maxAge: 30 * 24 * 60 * 60 * 1000,
+    httpOnly: true,
+  });
+
+  res.send({
+    user: normalizedUser,
+    accessToken,
+  });
+}
+
 export const authContoller = {
   register,
   activate,
   login,
+  refresh,
 }
