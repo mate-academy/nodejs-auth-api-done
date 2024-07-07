@@ -24,7 +24,7 @@ function validateRefreshToken(token) {
   }
 }
 
-export const jwtService = { 
+export const jwtService = {
   generateAccessToken,
   generateRefreshToken,
   validateAccessToken,

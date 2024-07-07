@@ -37,7 +37,7 @@ async function register(req, res, next) {
   };
 
   if (errors.email || errors.password) {
-    throw ApiError.BadRequest('Validation error', errors)
+    throw ApiError.BadRequest('Validation error', errors);
   }
 
   await userService.register({ email, password });
@@ -49,7 +49,7 @@ async function activate(req, res, next) {
   const { activationToken } = req.params;
 
   const user = await User.findOne({
-    where: { activationToken }
+    where: { activationToken },
   });
 
   if (!user) {

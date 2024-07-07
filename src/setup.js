@@ -1,6 +1,6 @@
 import 'dotenv/config';
 import { sequelize } from './utils/db.js';
-import './models/User.js';
-import './models/Token.js';
+import './models/user.js';
+import './models/token.js';
 
 sequelize.sync({ force: true });

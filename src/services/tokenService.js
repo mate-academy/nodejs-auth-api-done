@@ -1,4 +1,4 @@
-import { Token } from '../models/Token.js'
+import { Token } from '../models/token.js';
 
 async function save(userId, refreshToken) {
   const token = await Token.findOne({
@@ -32,4 +32,4 @@ export const tokenService = {
   getByToken,
   save,
   remove,
-}
+};
